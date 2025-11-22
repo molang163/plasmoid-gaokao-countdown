@@ -2,6 +2,7 @@
     "KPlugin": {
         "Id": "com.github.plasmoid-gaokao-countdown",
         "Name": "Gaokao Countdown",
+        "Name[zh_CN]": "高考倒计时",
         "Description": "Gaokao Countdown Widget for KDE Plasma 6",
         "Version": "1.0",
         "Category": "Date and Time",
