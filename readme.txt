@@ -1,6 +1,7 @@
 # Gaokao Countdown Widget for KDE Plasma 6
 
 一个简单美观的高考倒计时部件，自动显示距离高考的剩余时间。
+仅适用于linux系统kde桌面
 
 ## 功能特点
 
