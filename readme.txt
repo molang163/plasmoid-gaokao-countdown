@@ -7,7 +7,7 @@ Gaokao Countdown Widget for KDE Plasma 6
 
 
 如何使用：
-下载部件源代码
+下载部件源代码,解压并进入文件夹
 在源代码文件夹中打开终端
 运行以下安装命令：
 <BASH>
