@@ -1,0 +1,20 @@
+{
+    "KPlugin": {
+        "Id": "com.github.plasmoid-gaokao-countdown",
+        "Name": "Gaokao Countdown",
+        "Description": "Gaokao Countdown Widget for KDE Plasma 6",
+        "Version": "1.0",
+        "Category": "Date and Time",
+        "Icon": "appointment-soon",
+        "Authors": [
+            {
+                "Name": "molang"
+            }
+        ],
+        "License": "GPL-3.0+",
+        "EnabledByDefault": true,
+        "Website": "https://github.com/molang163/plasmoid-gaokao-countdown"
+    },
+    "KPackageStructure": "Plasma/Applet",
+    "X-Plasma-API-Minimum-Version": "6.x"
+}

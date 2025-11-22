@@ -1,2 +1,21 @@
-Git is a version control system.
-Git is free software.
+Gaokao Countdown Widget for KDE Plasma 6
+一个简单美观的高考倒计时部件，自动显示距离高考的剩余时间
+功能特点
+专门为 KDE Plasma 6 桌面设计
+显示剩余天数、小时、分钟和秒数
+自动计算下次高考日期（每年6月7日）
+
+
+如何使用：
+下载部件源代码
+在源代码文件夹中打开终端
+运行以下安装命令：
+<BASH>
+kpackagetool6 -t Plasma/Applet -i .
+使用说明
+安装完成后，在桌面右键菜单选择"添加部件"，然后搜索添加"高考倒计时"即可。部件会自动更新显示，不需要额外设置。
+
+
+
+
+祝所有考生顺利备考，金榜题名！
