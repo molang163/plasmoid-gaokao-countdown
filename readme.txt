@@ -12,7 +12,6 @@
 
 下载挂件，解压并进入文件夹，在终端中依次运行以下命令：
 
-```bash
 chmod +x install.sh
 ./install.sh
 使用说明
