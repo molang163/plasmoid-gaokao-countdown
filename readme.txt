@@ -9,8 +9,13 @@
 - 自动计算下次高考日期（每年6月7日）
 
 ## 如何安装
+方法1：下载挂件，在终端中输入
+kpackagetool6 -i gaokao-countdown.plasmoid
 
-下载挂件，解压并进入文件夹，在终端中依次运行以下命令：
+
+
+方法2：
+下载源码，解压并进入文件夹，在终端中依次运行以下命令：
 
 chmod +x install.sh
 ./install.sh
