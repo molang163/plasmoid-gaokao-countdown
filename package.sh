@@ -7,6 +7,7 @@ package_path="dist/gaokao-countdown.plasmoid"
 package_files=(
     metadata.json
     contents
+    screenshots
     LICENSE
     README.md
 )

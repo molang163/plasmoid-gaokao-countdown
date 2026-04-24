@@ -9,6 +9,6 @@ cleanup() {
 }
 trap cleanup EXIT
 
-cp -R metadata.json contents LICENSE README.md "${staging_dir}/"
+cp -R metadata.json contents screenshots LICENSE README.md "${staging_dir}/"
 
 kpackagetool6 -t Plasma/Applet -u "${staging_dir}" || kpackagetool6 -t Plasma/Applet -i "${staging_dir}"
