@@ -4,7 +4,8 @@
         "Name": "Gaokao Countdown",
         "Name[zh_CN]": "高考倒计时",
         "Description": "Gaokao Countdown Widget for KDE Plasma 6",
-        "Version": "1.0",
+        "Description[zh_CN]": "适用于 KDE Plasma 6 的高考倒计时小组件",
+        "Version": "1.1",
         "Category": "Date and Time",
         "Icon": "appointment-soon",
         "Authors": [
@@ -12,10 +13,10 @@
                 "Name": "molang"
             }
         ],
-        "License": "GPL-3.0+",
+        "License": "GPL-3.0-or-later",
         "EnabledByDefault": true,
         "Website": "https://github.com/molang163/plasmoid-gaokao-countdown"
     },
     "KPackageStructure": "Plasma/Applet",
-    "X-Plasma-API-Minimum-Version": "6.x"
+    "X-Plasma-API-Minimum-Version": "6.0"
 }

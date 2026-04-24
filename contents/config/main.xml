@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SPDX-FileCopyrightText: 2025 molang
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+      http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+    <kcfgfile name=""/>
+
+    <group name="General">
+        <entry name="titleText" type="String">
+            <label>倒计时标题。</label>
+            <default>高考倒计时</default>
+        </entry>
+        <entry name="targetMonth" type="Int">
+            <label>目标月份。</label>
+            <default>6</default>
+        </entry>
+        <entry name="targetDay" type="Int">
+            <label>目标日期。</label>
+            <default>7</default>
+        </entry>
+        <entry name="targetHour" type="Int">
+            <label>目标小时。</label>
+            <default>9</default>
+        </entry>
+        <entry name="targetMinute" type="Int">
+            <label>目标分钟。</label>
+            <default>0</default>
+        </entry>
+        <entry name="showSeconds" type="Bool">
+            <label>是否显示秒数。</label>
+            <default>true</default>
+        </entry>
+    </group>
+</kcfg>
