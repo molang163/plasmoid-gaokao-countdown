@@ -72,6 +72,14 @@ KDE Store 上传时使用 `dist/gaokao-countdown.plasmoid` 作为下载文件，
 
 ## 开发检查
 
+标题和倒计时回归测试需要 Python 3 和 Qt 6 的 `qmltestrunner`：
+
+```bash
+python3 tests/run-tests.py
+```
+
+测试从 `main.qml` 读取实际的属性绑定和函数，在临时 QML 对象中运行，覆盖默认/自定义标题、今天、明天、目标时间前后及次年滚动。测试使用临时配置目录，无需安装挂件。可用 `QMLTESTRUNNER` 指定 Qt 6 测试工具路径。
+
 ```bash
 kpackagetool6 --appstream-metainfo . --appstream-metainfo-output /tmp/gaokao-countdown.metainfo.xml
 appstreamcli validate --no-net /tmp/gaokao-countdown.metainfo.xml

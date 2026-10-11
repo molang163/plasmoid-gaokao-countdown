@@ -90,6 +90,9 @@ PlasmoidItem {
     }
 
     function headline() {
+        if (root.titleText !== root.fallbackTitle) {
+            return root.titleText;
+        }
         if (root.calendarDaysLeft === 0) {
             return i18n("今天高考");
         }
