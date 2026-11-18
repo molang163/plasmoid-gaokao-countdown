@@ -10,6 +10,7 @@ package_files=(
     screenshots
     LICENSE
     README.md
+    README.en.md
 )
 
 mkdir -p dist
@@ -20,7 +21,7 @@ if command -v cmake >/dev/null 2>&1; then
 elif command -v 7z >/dev/null 2>&1; then
     7z a -tzip "${package_path}" "${package_files[@]}" >/dev/null
 elif command -v bsdtar >/dev/null 2>&1; then
-    bsdtar -a -cf "${package_path}" "${package_files[@]}"
+    bsdtar --format zip -cf "${package_path}" "${package_files[@]}"
 else
     printf 'Missing archive tool: install cmake, 7z, or bsdtar.\n' >&2
     exit 1

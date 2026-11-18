@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the widget's actual QML properties/functions without a Plasma shell."""
+"""Run the production countdown model in English and Chinese without a Plasma shell."""
 
 import argparse
 import json
@@ -14,45 +14,24 @@ import xml.etree.ElementTree as ET
 REPO = Path(__file__).resolve().parent.parent
 
 
-def harness(source):
-    # Keep the production bindings and functions, excluding only the color
-    # binding that needs Kirigami. Missing section markers fail loudly.
-    for marker in ("PlasmoidItem {\n", "    Plasmoid.icon:", "    function normalizedTitle() {", "    Timer {"):
-        if source.count(marker) != 1:
-            raise ValueError(f"Cannot locate the widget section: {marker.strip()}")
-    properties = source.split("PlasmoidItem {\n", 1)[1].split("    Plasmoid.icon:", 1)[0]
-    color = "    readonly property color accentColor: urgencyColor()\n"
-    if properties.count(color) != 1:
-        raise ValueError("Cannot locate the widget's accentColor binding")
-    properties = properties.replace(color, "")
-    functions = source.split("    function normalizedTitle() {", 1)[1].split("    Timer {", 1)[0]
-
-    # Use the real configuration schema's defaults rather than repeating them.
+def test_configuration():
+    """Expose the same observable configuration properties that Plasma provides."""
     schema = ET.parse(REPO / "contents/config/main.xml")
     namespace = {"kcfg": "http://www.kde.org/standards/kcfg/1.0"}
-    declarations = []
+    properties = []
     for entry in schema.findall(".//kcfg:entry", namespace):
         kind = {"String": "string", "Int": "int", "Bool": "bool"}[entry.attrib["type"]]
-        default = entry.find("kcfg:default", namespace).text
+        default = entry.findtext("kcfg:default", default="", namespaces=namespace)
         if kind == "string":
             default = json.dumps(default, ensure_ascii=False)
-        declarations.append(f"property {kind} {entry.attrib['name']}: {default}")
-    configuration = "\n".join(declarations)
-    return (
-        "import QtQml\nQtObject {\n" + properties
-        + "property QtObject plasmoid: QtObject {\n"
-        + "property QtObject configuration: QtObject {\n" + configuration + "\n}\n}\n"
-        + "function i18n(message) {\n"
-        + "    for (let index = 1; index < arguments.length; ++index) {\n"
-        + "        message = message.replace('%' + index, arguments[index]);\n"
-        + "    }\n    return message;\n}\n"
-        + "    function normalizedTitle() {" + functions + "}\n"
-    )
+        properties.append(f"    property {kind} {entry.attrib['name']}: {default}")
+    return "import QtQml\nQtObject {\n" + "\n".join(properties) + "\n}\n"
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", type=Path, default=REPO / "contents/ui/main.qml")
+    parser.add_argument("--source", type=Path, default=REPO / "contents/ui/Countdown.qml",
+                        help="test an alternative Countdown.qml model")
     args = parser.parse_args()
     runner = os.environ.get("QMLTESTRUNNER")
     if not runner:
@@ -63,8 +42,10 @@ def main():
 
     with tempfile.TemporaryDirectory(prefix="gaokao-countdown-tests-") as directory:
         temporary = Path(directory)
-        (temporary / "CountdownUnderTest.qml").write_text(harness(args.source.read_text()))
+        shutil.copy(args.source, temporary / "Countdown.qml")
         shutil.copy(REPO / "tests/tst_title.qml", temporary)
+        (temporary / "TestConfiguration.qml").write_text(test_configuration())
+
         environment = os.environ.copy()
         environment.update({
             "QT_QPA_PLATFORM": "offscreen",
@@ -77,7 +58,16 @@ def main():
             path = temporary / variable.lower()
             path.mkdir(mode=0o700)
             environment[variable] = str(path)
-        return subprocess.run([runner, "-input", str(temporary)], env=environment, cwd=temporary).returncode
+        # Make the packaged translations available to the standalone KI18n context.
+        (Path(environment["XDG_DATA_HOME"]) / "locale").symlink_to(REPO / "contents/locale")
+
+        for language in ("en_US", "zh_CN"):
+            print(f"Running countdown tests in {language}", flush=True)
+            environment.update(LANGUAGE=language, LANG=f"{language}.UTF-8", LC_ALL=f"{language}.UTF-8")
+            result = subprocess.run([runner, "-input", str(temporary)], env=environment, cwd=temporary)
+            if result.returncode:
+                return result.returncode
+        return 0
 
 
 if __name__ == "__main__":

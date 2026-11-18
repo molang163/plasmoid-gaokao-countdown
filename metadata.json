@@ -3,11 +3,11 @@
         "Id": "com.github.plasmoid-gaokao-countdown",
         "Name": "Gaokao Countdown",
         "Name[zh_CN]": "高考倒计时",
-        "Description": "Gaokao Countdown Widget for KDE Plasma 6",
-        "Description[zh_CN]": "适用于 KDE Plasma 6 的高考倒计时小组件",
-        "Version": "1.1",
+        "Description": "Count down to the Gaokao, your next exam, or any date you choose.",
+        "Description[zh_CN]": "为高考、下一场考试或自选日期倒计时。",
+        "Version": "1.2",
         "Category": "Date and Time",
-        "Icon": "appointment-soon",
+        "Icon": "view-calendar-day",
         "Authors": [
             {
                 "Name": "molang"

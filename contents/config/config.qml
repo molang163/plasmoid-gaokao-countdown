@@ -8,7 +8,7 @@ import org.kde.plasma.configuration
 
 ConfigModel {
     ConfigCategory {
-        name: i18n("常规")
+        name: i18n("General")
         icon: "configure"
         source: "configGeneral.qml"
     }

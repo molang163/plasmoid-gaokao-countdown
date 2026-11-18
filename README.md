@@ -1,92 +1,65 @@
 # 高考倒计时
 
-<p align="center">
-  <img alt="KDE Plasma 6" src="https://img.shields.io/badge/KDE%20Plasma-6-1D99F3?logo=kde&logoColor=white">
-  <img alt="Version 1.1" src="https://img.shields.io/badge/version-1.1-7F52FF">
-  <img alt="GPL-3.0-or-later" src="https://img.shields.io/badge/license-GPL--3.0--or--later-3DAE2B">
+[English](README.en.md)
+
+一个 KDE Plasma 6 桌面和面板挂件。加到桌面就会倒数到下一次高考，默认目标是本地时间 6 月 7 日上午 9 点。你也可以用它记住自己的考试、答辩或项目截止日。挂件支持简体中文和英文，界面语言和日期格式跟随系统设置。
+
+<p>
+  <img src="screenshots/preview.png" alt="中文高考倒计时" width="300">
+  <img src="screenshots/preview-en.png" alt="用英文倒数到自己的期末考试" width="300">
 </p>
 
-一个为 KDE Plasma 6 桌面和面板准备的高考倒计时小组件。默认目标时间为每年 **6 月 7 日 09:00**，也可以在小组件设置里改成自己的考试、截止日或纪念日。
+## 在桌面和面板上使用
 
-<p align="center">
-  <img src="screenshots/preview.png" alt="高考倒计时 Plasma 6 小组件预览" width="820">
-</p>
+桌面卡片平时显示还剩多少天，到了前一天会写“明天高考”，并告诉你离开考还有多久。目标当天上午 9 点后，默认高考卡片会写“今天高考”和“祝你考试顺利！”。自定义事件会一直显示你起的标题。
 
-## 亮点
+点“详情”可以看精确到时分秒的倒计时。每年重复的事件还会显示从上一次目标时刻走到这一次的进度。面板里只占一小块地方，点一下就能展开卡片。
 
-- **Plasma 6 原生结构**：使用 `metadata.json`、`PlasmoidItem` 和 Plasma 6 QML API。
-- **桌面/面板都好用**：桌面显示完整倒计时卡片，面板显示紧凑天数，点击可展开完整视图。
-- **日期计算稳妥**：高考当天全天显示“今天”，不会在 6 月 7 日凌晨后误跳到下一年。
-- **自动处理闰年**：通过 JavaScript `Date` 计算日期，2 月 29 日等配置会按目标年份自动处理。
-- **可配置目标**：支持修改标题、月份、日期、小时、分钟，以及是否显示秒数。
-- **自带发布包脚本**：一条命令生成 KDE Store 可上传的 `.plasmoid` 文件。
+## 设置自己的日期
 
-## 安装
+右键挂件，打开配置。在“常规”里填标题、日期和时间。标题留空会使用默认的高考文案。
 
-从源码安装到当前用户：
+- **每年重复**适合高考或纪念日。目标当天全天保留，次日开始倒数到下一年。每年 2 月 29 日的目标在平年按 2 月 28 日计算。
+- **只倒数一次**适合某一场考试或截止日。取消勾选“每年重复”后选择年份。过了目标日期，卡片显示“日期已过”。
+- **在详情中显示秒数**控制详细倒计时的精度。
 
-```bash
-chmod +x install.sh
+## 安装和打包
+
+从源码安装或更新当前用户的挂件，需要 KDE 的 `kpackagetool6`。在仓库根目录运行：
+
+```sh
 ./install.sh
 ```
 
-安装完成后，在桌面右键菜单中选择“添加或管理挂件...”，搜索“高考倒计时”并添加。
+在 Plasma 的“添加或管理挂件”中搜索“高考倒计时”。要生成可分发的安装包，运行 `./package.sh`。产物是 `dist/gaokao-countdown.plasmoid`，也可以通过命令首次安装：
 
-如果 Plasma 没有立刻刷新组件列表，可以重启 plasmashell：
-
-```bash
-systemctl --user restart plasma-plasmashell.service
-```
-
-## 配置
-
-添加小组件后，右键小组件并打开“配置高考倒计时”：
-
-- 标题：例如“高考倒计时”“考研倒计时”“项目截止”
-- 日期：目标月份和日期
-- 时间：目标小时和分钟
-- 秒数：是否在完整视图里显示秒
-
-## 打包发布
-
-生成 KDE Store / 本地安装可用的发布包：
-
-```bash
-chmod +x package.sh
-./package.sh
-```
-
-产物会生成在：
-
-```text
-dist/gaokao-countdown.plasmoid
-```
-
-用户可以从本地文件安装：
-
-```bash
+```sh
 kpackagetool6 -t Plasma/Applet -i dist/gaokao-countdown.plasmoid
 ```
 
-KDE Store 上传时使用 `dist/gaokao-countdown.plasmoid` 作为下载文件，`screenshots/preview.png` 可以作为展示截图。
+## 开发和测试
 
-## 开发检查
+逻辑测试使用 Python 3、Qt 6 的 `qmltestrunner` 和 KI18n 6.23 或更新版本的 QML 模块。运行 `python3 tests/run-tests.py`，会分别测试英文和简体中文。
 
-标题和倒计时回归测试需要 Python 3 和 Qt 6 的 `qmltestrunner`：
+在 niri 等 Wayland 桌面上也可以用 `plasmoidviewer` 打开预览窗口。预览需要 Plasma SDK、Plasma 运行库和桌面容器。安装挂件后，在终端运行：
 
-```bash
-python3 tests/run-tests.py
+```sh
+plasmoidviewer -a com.github.plasmoid-gaokao-countdown
+plasmoidviewer -a com.github.plasmoid-gaokao-countdown -c org.kde.panel -f horizontal -l topedge -s 850x42
 ```
 
-测试从 `main.qml` 读取实际的属性绑定和函数，在临时 QML 对象中运行，覆盖默认/自定义标题、今天、明天、目标时间前后及次年滚动。测试使用临时配置目录，无需安装挂件。可用 `QMLTESTRUNNER` 指定 Qt 6 测试工具路径。
+要从当前源码直接预览，在仓库根目录运行下列命令。它会让预览器在源码的 `contents/locale` 中查找翻译：
 
-```bash
-kpackagetool6 --appstream-metainfo . --appstream-metainfo-output /tmp/gaokao-countdown.metainfo.xml
-appstreamcli validate --no-net /tmp/gaokao-countdown.metainfo.xml
-./install.sh
-plasmawindowed com.github.plasmoid-gaokao-countdown
+```sh
+XDG_DATA_DIRS="$PWD/contents:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" plasmoidviewer -a "$PWD"
+```
+
+翻译源文件为 [po/zh_CN.po](po/zh_CN.po)。更新中文后重新生成挂件内的翻译：
+
+```sh
+msgfmt --check po/zh_CN.po -o contents/locale/zh_CN/LC_MESSAGES/plasma_applet_com.github.plasmoid-gaokao-countdown.mo
 ```
 
 ## 许可
 
-GPL-3.0-or-later
+[GPL-3.0-or-later](LICENSE)

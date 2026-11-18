@@ -11,27 +11,35 @@
 
     <group name="General">
         <entry name="titleText" type="String">
-            <label>倒计时标题。</label>
-            <default>高考倒计时</default>
+            <label>Countdown title.</label>
+            <default/>
+        </entry>
+        <entry name="repeatAnnually" type="Bool">
+            <label>Repeat every year.</label>
+            <default>true</default>
+        </entry>
+        <entry name="targetYear" type="Int">
+            <label>Target year for a one-time event.</label>
+            <default>0</default>
         </entry>
         <entry name="targetMonth" type="Int">
-            <label>目标月份。</label>
+            <label>Target month.</label>
             <default>6</default>
         </entry>
         <entry name="targetDay" type="Int">
-            <label>目标日期。</label>
+            <label>Target day.</label>
             <default>7</default>
         </entry>
         <entry name="targetHour" type="Int">
-            <label>目标小时。</label>
+            <label>Target hour.</label>
             <default>9</default>
         </entry>
         <entry name="targetMinute" type="Int">
-            <label>目标分钟。</label>
+            <label>Target minute.</label>
             <default>0</default>
         </entry>
         <entry name="showSeconds" type="Bool">
-            <label>是否显示秒数。</label>
+            <label>Show seconds in the detailed countdown.</label>
             <default>true</default>
         </entry>
     </group>

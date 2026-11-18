@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
@@ -13,286 +15,146 @@ import org.kde.plasma.plasmoid
 PlasmoidItem {
     id: root
 
-    readonly property int msecPerDay: 24 * 60 * 60 * 1000
-    readonly property string fallbackTitle: i18n("高考倒计时")
-    readonly property string titleText: normalizedTitle()
-    readonly property int targetMonth: boundedInt(plasmoid.configuration.targetMonth, 6, 1, 12)
-    readonly property int targetDay: boundedInt(plasmoid.configuration.targetDay, 7, 1, 31)
-    readonly property int targetHour: boundedInt(plasmoid.configuration.targetHour, 9, 0, 23)
-    readonly property int targetMinute: boundedInt(plasmoid.configuration.targetMinute, 0, 0, 59)
-    readonly property bool showSeconds: plasmoid.configuration.showSeconds !== false
+    property bool showingDetails: false
 
-    property date now: new Date()
+    Countdown {
+        id: countdown
+        configuration: Plasmoid.configuration
+    }
 
-    readonly property date targetDate: nextTargetDate(now)
-    readonly property int calendarDaysLeft: Math.max(0, Math.round((startOfDay(targetDate) - startOfDay(now)) / msecPerDay))
-    readonly property real remainingMs: Math.max(0, targetDate.getTime() - now.getTime())
-    readonly property int daysRemaining: Math.floor(remainingMs / msecPerDay)
-    readonly property int hoursRemaining: Math.floor((remainingMs / (60 * 60 * 1000)) % 24)
-    readonly property int minutesRemaining: Math.floor((remainingMs / (60 * 1000)) % 60)
-    readonly property int secondsRemaining: Math.floor((remainingMs / 1000) % 60)
-    readonly property date previousTargetDate: previousTarget(targetDate)
-    readonly property real cycleMs: Math.max(1, targetDate.getTime() - previousTargetDate.getTime())
-    readonly property real progressValue: Math.max(0, Math.min(1, (now.getTime() - previousTargetDate.getTime()) / cycleMs))
-    readonly property int progressPercent: Math.round(progressValue * 100)
-    readonly property color accentColor: urgencyColor()
-    readonly property string targetDateText: Qt.formatDateTime(targetDate, "yyyy年M月d日 HH:mm")
-    readonly property string headlineText: headline()
-    readonly property string countdownText: countdown()
-    readonly property string compactCountdownText: compactCountdown()
-    readonly property string noteText: note()
-
-    Plasmoid.icon: "appointment-soon"
+    Plasmoid.icon: "view-calendar-day"
     Plasmoid.backgroundHints: PlasmaCore.Types.DefaultBackground | PlasmaCore.Types.ConfigurableBackground
-    toolTipMainText: root.titleText
-    toolTipSubText: i18n("目标时间：%1", root.targetDateText)
+    toolTipMainText: countdown.titleText
+    toolTipSubText: countdown.targetDateText
 
     switchWidth: Kirigami.Units.gridUnit * 12
     switchHeight: Kirigami.Units.gridUnit * 7
     preferredRepresentation: Plasmoid.formFactor === PlasmaCore.Types.Planar ? fullRepresentation : compactRepresentation
 
-    function normalizedTitle() {
-        const configured = String(plasmoid.configuration.titleText || "").trim();
-        return configured.length > 0 ? configured : root.fallbackTitle;
-    }
+    onExpandedChanged: if (expanded) countdown.now = new Date()
 
-    function boundedInt(value, fallback, minimum, maximum) {
-        const parsed = Number(value);
-        if (!isFinite(parsed)) {
-            return fallback;
-        }
-        return Math.min(maximum, Math.max(minimum, Math.round(parsed)));
-    }
-
-    function daysInMonth(year, month) {
-        return new Date(year, month, 0).getDate();
-    }
-
-    function targetForYear(year) {
-        const day = Math.min(root.targetDay, daysInMonth(year, root.targetMonth));
-        return new Date(year, root.targetMonth - 1, day, root.targetHour, root.targetMinute, 0, 0);
-    }
-
-    function previousTarget(nextTarget) {
-        return targetForYear(nextTarget.getFullYear() - 1);
-    }
-
-    function startOfDay(date) {
-        return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-    }
-
-    function nextTargetDate(reference) {
-        const currentYearTarget = targetForYear(reference.getFullYear());
-        if (startOfDay(reference) > startOfDay(currentYearTarget)) {
-            return targetForYear(reference.getFullYear() + 1);
-        }
-        return currentYearTarget;
-    }
-
-    function headline() {
-        if (root.titleText !== root.fallbackTitle) {
-            return root.titleText;
-        }
-        if (root.calendarDaysLeft === 0) {
-            return i18n("今天高考");
-        }
-        if (root.calendarDaysLeft === 1) {
-            return i18n("明天高考");
-        }
-        return root.titleText;
-    }
-
-    function countdown() {
-        if (root.calendarDaysLeft === 0 && root.remainingMs <= 0) {
-            return i18n("今天");
-        }
-        if (root.showSeconds) {
-            return i18n("%1天 %2时 %3分 %4秒", root.daysRemaining, root.hoursRemaining, root.minutesRemaining, root.secondsRemaining);
-        }
-        return i18n("%1天 %2时 %3分", root.daysRemaining, root.hoursRemaining, root.minutesRemaining);
-    }
-
-    function compactCountdown() {
-        if (root.calendarDaysLeft === 0) {
-            return i18n("今天");
-        }
-        if (root.calendarDaysLeft === 1) {
-            return i18n("明天");
-        }
-        return i18n("%1天", root.calendarDaysLeft);
-    }
-
-    function note() {
-        if (root.calendarDaysLeft === 0) {
-            return i18n("目标时间：%1", root.targetDateText);
-        }
-        return i18n("距离目标日期还剩 %1 天", root.calendarDaysLeft);
-    }
-
-    function urgencyColor() {
-        if (root.calendarDaysLeft <= 7) {
-            return Kirigami.Theme.negativeTextColor;
-        }
-        return Kirigami.Theme.highlightColor;
-    }
-
-    function refreshNow() {
-        root.now = new Date();
-    }
-
+    // Wake at the next wall-clock minute (or second when showing the exact time).
     Timer {
-        interval: root.showSeconds ? 1000 : 60000
+        readonly property bool detailsVisible: root.showingDetails && (Plasmoid.formFactor === PlasmaCore.Types.Planar || root.expanded)
+        readonly property int tick: detailsVisible && countdown.showSeconds ? 1000 : 60000
+        interval: tick - (countdown.now.getTime() % tick)
         running: true
         repeat: true
-        triggeredOnStart: true
-        onTriggered: root.refreshNow()
+        onTriggered: countdown.now = new Date()
     }
 
-    compactRepresentation: MouseArea {
-        id: compactRoot
+    compactRepresentation: PlasmaComponents.ToolButton {
+        id: compact
 
-        Layout.minimumWidth: Math.max(Kirigami.Units.gridUnit * 4, compactRow.implicitWidth + Kirigami.Units.smallSpacing * 2)
-        Layout.preferredWidth: Layout.minimumWidth
-        Layout.minimumHeight: Kirigami.Units.gridUnit * 2
-        Layout.preferredHeight: Layout.minimumHeight
-
-        hoverEnabled: true
-        onClicked: root.expanded = !root.expanded
-
-        RowLayout {
-            id: compactRow
-            anchors.centerIn: parent
-            spacing: Kirigami.Units.smallSpacing
-
-            Kirigami.Icon {
-                source: "appointment-soon"
-                implicitWidth: Kirigami.Units.iconSizes.small
-                implicitHeight: Kirigami.Units.iconSizes.small
-                color: root.accentColor
-            }
-
-            PlasmaComponents.Label {
-                id: compactLabel
-
-                text: root.compactCountdownText
-                color: root.calendarDaysLeft <= 7 ? root.accentColor : Kirigami.Theme.textColor
-                elide: Text.ElideRight
-                font.bold: true
-                horizontalAlignment: Text.AlignHCenter
-                maximumLineCount: 1
-                verticalAlignment: Text.AlignVCenter
-            }
+        readonly property bool vertical: Plasmoid.formFactor === PlasmaCore.Types.Vertical
+        Layout.minimumWidth: vertical ? Kirigami.Units.gridUnit : implicitWidth
+        Layout.preferredWidth: implicitWidth
+        Layout.minimumHeight: Kirigami.Units.gridUnit
+        text: vertical && countdown.calendarDaysLeft > 1 ? String(countdown.calendarDaysLeft) : countdown.compactCountdownText
+        icon.name: "view-calendar-day"
+        display: !vertical ? PlasmaComponents.ToolButton.TextBesideIcon
+            : compactTextMetrics.advanceWidth <= width - leftPadding - rightPadding
+                ? PlasmaComponents.ToolButton.TextOnly : PlasmaComponents.ToolButton.IconOnly
+        TextMetrics {
+            id: compactTextMetrics
+            text: compact.text
+            font: compact.font
         }
+        Accessible.name: countdown.titleText + ", " + countdown.compactCountdownText
+        onClicked: root.expanded = !root.expanded
     }
 
     fullRepresentation: Item {
-        id: fullRoot
-
         Layout.minimumWidth: Kirigami.Units.gridUnit * 16
         Layout.minimumHeight: Kirigami.Units.gridUnit * 9
         Layout.preferredWidth: Kirigami.Units.gridUnit * 20
-        Layout.preferredHeight: Kirigami.Units.gridUnit * 11
+        Layout.preferredHeight: Kirigami.Units.gridUnit * 10
 
         ColumnLayout {
             anchors.fill: parent
             anchors.margins: Kirigami.Units.largeSpacing
-            spacing: Kirigami.Units.smallSpacing * 1.5
+            spacing: Kirigami.Units.smallSpacing
 
             RowLayout {
                 Layout.fillWidth: true
                 spacing: Kirigami.Units.smallSpacing
 
-                Kirigami.Icon {
-                    source: "appointment-soon"
-                    Layout.preferredWidth: Kirigami.Units.iconSizes.smallMedium
-                    Layout.preferredHeight: Kirigami.Units.iconSizes.smallMedium
-                    color: root.accentColor
-                }
-
-                ColumnLayout {
+                PlasmaComponents.Label {
                     Layout.fillWidth: true
-                    spacing: 0
+                    // Close to the exam, the primary line already names the Gaokao.
+                    text: !root.showingDetails && countdown.builtinTitle && !countdown.expired && countdown.calendarDaysLeft <= 1
+                        ? countdown.targetDateText : countdown.titleText
+                    textFormat: Text.PlainText
+                    elide: Text.ElideRight
+                    maximumLineCount: 1
+                    font.weight: Font.DemiBold
+                }
 
-                    PlasmaComponents.Label {
-                        text: root.headlineText
-                        Layout.fillWidth: true
-                        elide: Text.ElideRight
-                        font.bold: true
-                        maximumLineCount: 1
-                    }
-
-                    PlasmaComponents.Label {
-                        text: root.targetDateText
-                        Layout.fillWidth: true
-                        color: Kirigami.Theme.disabledTextColor
-                        elide: Text.ElideRight
-                        font: Kirigami.Theme.smallFont
-                        maximumLineCount: 1
+                PlasmaComponents.ToolButton {
+                    text: root.showingDetails ? i18n("Overview") : i18n("Details")
+                    display: PlasmaComponents.ToolButton.TextOnly
+                    onClicked: {
+                        root.showingDetails = !root.showingDetails;
+                        countdown.now = new Date();
                     }
                 }
+            }
+
+            Kirigami.Separator {
+                Layout.fillWidth: true
             }
 
             Item {
-                Layout.fillWidth: true
                 Layout.fillHeight: true
-
-                RowLayout {
-                    anchors.centerIn: parent
-                    spacing: Kirigami.Units.smallSpacing
-
-                    PlasmaComponents.Label {
-                        text: root.calendarDaysLeft
-                        color: root.accentColor
-                        font.bold: true
-                        font.pixelSize: Math.round(Kirigami.Theme.defaultFont.pixelSize * 5.2)
-                        horizontalAlignment: Text.AlignRight
-                        verticalAlignment: Text.AlignVCenter
-                    }
-
-                    ColumnLayout {
-                        spacing: 0
-
-                        PlasmaComponents.Label {
-                            text: i18n("天")
-                            color: root.accentColor
-                            font.bold: true
-                            font.pixelSize: Math.round(Kirigami.Theme.defaultFont.pixelSize * 1.8)
-                        }
-
-                        PlasmaComponents.Label {
-                            text: root.countdownText
-                            color: Kirigami.Theme.textColor
-                            elide: Text.ElideRight
-                            maximumLineCount: 1
-                        }
-                    }
-                }
+                Layout.preferredHeight: 0
             }
 
-            PlasmaComponents.ProgressBar {
+            PlasmaComponents.Label {
                 Layout.fillWidth: true
-                from: 0
-                to: 1
-                value: root.progressValue
+                Layout.preferredHeight: implicitHeight
+                text: root.showingDetails ? countdown.countdownText : countdown.mainText
+                textFormat: Text.PlainText
+                color: root.showingDetails || countdown.expired ? Kirigami.Theme.textColor : Kirigami.Theme.linkColor
+                font.bold: true
+                font.pixelSize: Math.round(Kirigami.Theme.defaultFont.pixelSize * (root.showingDetails ? 2.2 : 3.3))
+                fontSizeMode: Text.HorizontalFit
+                minimumPixelSize: Math.round(Kirigami.Theme.defaultFont.pixelSize * 1.2)
+                maximumLineCount: 1
+                elide: Text.ElideRight
+            }
+
+            PlasmaComponents.Label {
+                Layout.fillWidth: true
+                text: root.showingDetails ? countdown.targetDateText : countdown.subtitleText
+                elide: Text.ElideRight
+                maximumLineCount: 1
+            }
+
+            Item {
+                Layout.fillHeight: true
+                Layout.preferredHeight: 0
             }
 
             RowLayout {
+                visible: root.showingDetails && countdown.repeatAnnually
                 Layout.fillWidth: true
                 spacing: Kirigami.Units.smallSpacing
 
                 PlasmaComponents.Label {
-                    text: root.noteText
+                    text: i18n("Annual progress")
+                    font: Kirigami.Theme.smallFont
+                }
+
+                PlasmaComponents.ProgressBar {
                     Layout.fillWidth: true
-                    color: Kirigami.Theme.disabledTextColor
-                    elide: Text.ElideRight
-                    maximumLineCount: 1
+                    from: 0
+                    to: 1
+                    value: countdown.progressValue
                 }
 
                 PlasmaComponents.Label {
-                    text: i18n("%1%", root.progressPercent)
-                    color: Kirigami.Theme.disabledTextColor
-                    horizontalAlignment: Text.AlignRight
-                    maximumLineCount: 1
+                    text: i18n("%1%", Math.round(countdown.progressValue * 100))
+                    font: Kirigami.Theme.smallFont
                 }
             }
         }

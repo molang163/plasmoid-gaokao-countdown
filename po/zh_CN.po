@@ -1,0 +1,98 @@
+# Simplified Chinese translations for Gaokao Countdown.
+# SPDX-License-Identifier: GPL-3.0-or-later
+msgid ""
+msgstr ""
+"Project-Id-Version: Gaokao Countdown 1.2\n"
+"PO-Revision-Date: 2026-11-18 00:00+0800\n"
+"Language: zh_CN\n"
+"Last-Translator: molang\n"
+"Language-Team: Simplified Chinese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "General"
+msgstr "常规"
+
+msgid "Title:"
+msgstr "标题："
+
+msgid "Gaokao Countdown"
+msgstr "高考倒计时"
+
+msgid "Repeat every year"
+msgstr "每年重复"
+
+msgid "Year:"
+msgstr "年份："
+
+msgid "Month:"
+msgstr "月份："
+
+msgid "Day:"
+msgstr "日期："
+
+msgid "Hour:"
+msgstr "小时："
+
+msgid "Minute:"
+msgstr "分钟："
+
+msgid "Show seconds in details"
+msgstr "在详情中显示秒数"
+
+msgid "Date passed"
+msgstr "日期已过"
+
+msgid "Today"
+msgstr "今天"
+
+msgid "Tomorrow"
+msgstr "明天"
+
+msgid "%1 day"
+msgid_plural "%1 days"
+msgstr[0] "%1 天"
+
+msgid "Gaokao today"
+msgstr "今天高考"
+
+msgid "Gaokao tomorrow"
+msgstr "明天高考"
+
+msgid "%1 day to go"
+msgid_plural "%1 days to go"
+msgstr[0] "还有 %1 天"
+
+msgid "Good luck on your exam!"
+msgstr "祝你考试顺利！"
+
+msgid "%1 minute to go"
+msgid_plural "%1 minutes to go"
+msgstr[0] "还有 %1 分钟"
+
+msgid "%1 hour to go"
+msgid_plural "%1 hours to go"
+msgstr[0] "还有 %1 小时"
+
+msgid "%1 h %2 min to go"
+msgstr "还有 %1 小时 %2 分钟"
+
+msgid "%1 d %2 h %3 min %4 s"
+msgstr "%1 天 %2 时 %3 分 %4 秒"
+
+msgid "%1 d %2 h %3 min"
+msgstr "%1 天 %2 时 %3 分"
+
+msgid "Overview"
+msgstr "概览"
+
+msgid "Details"
+msgstr "详情"
+
+msgid "Annual progress"
+msgstr "年度进度"
+
+msgid "%1%"
+msgstr "%1%"
